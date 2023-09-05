@@ -10,6 +10,9 @@ g = zeros(size(z));
 %               vector or scalar).
 
 
+g = (1+exp(-z)).^(-1);
+
+
 
 
 
