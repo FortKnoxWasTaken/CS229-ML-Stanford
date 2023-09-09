@@ -30,6 +30,16 @@ J = 0;
 Theta1_grad = zeros(size(Theta1));
 Theta2_grad = zeros(size(Theta2));
 
+% Add ones to the X data matrix
+X = [ones(m, 1) X];
+
+% Vectorizing y
+yk = zeros(num_labels, m); 
+for i=1:m
+  yk(y(i),i)=1;
+end
+y=yk;
+
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should complete the code by working through the
 %               following parts.
@@ -62,28 +72,58 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+% =========================================================================
+% Forward Propagation
+a2 = sigmoid(Theta1 * X');
+% a2 = 25x5000
+a2 = [ones(m,1) a2'];
+% a2 = 5000x26
+h = sigmoid(Theta2 * a2');
+% h = 10x5000
 
+% yk = 10x5000
+% h = 10x5000
+J = -sum((y.*log(h)+(1-y).*log(1-h)), "all")/m;
 
+reg_func = lambda*(sum(Theta1(:, 2:size(Theta1,2)).^2, "all")+sum(Theta2(:, 2:size(Theta2, 2)).^2, "all"))/(2*m);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% -------------------------------------------------------------
+J=J+reg_func;
 
 % =========================================================================
+% Back Propagation
+for t=1:m
+	a1 = X(t,:); 
+	z2 = Theta1 * a1';
 
+	a2 = sigmoid(z2);
+	a2 = [1 ; a2];
+
+	z3 = Theta2 * a2;
+
+	a3 = sigmoid(z3);
+
+
+	z2=[1; z2]; 
+	delta_3 = a3 - yk(:,t);
+	delta_2 = (Theta2' * delta_3) .* sigmoidGradient(z2);
+
+	delta_2 = delta_2(2:end); 
+
+	Theta2_grad = Theta2_grad + delta_3 * a2';
+	Theta1_grad = Theta1_grad + delta_2 * a1;
+end
+
+Theta1_grad(:, 1) = Theta1_grad(:, 1) ./ m;
+
+Theta1_grad(:, 2:end) = Theta1_grad(:, 2:end) ./ m + ((lambda/m) * Theta1(:, 2:end));
+
+
+Theta2_grad(:, 1) = Theta2_grad(:, 1) ./ m;
+
+Theta2_grad(:, 2:end) = Theta2_grad(:, 2:end) ./ m + ((lambda/m) * Theta2(:, 2:end));
+
+
+% =========================================================================
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
 

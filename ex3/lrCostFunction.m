@@ -12,6 +12,9 @@ m = length(y); % number of training examples
 J = 0;
 grad = zeros(size(theta));
 
+% Add ones to the X data matrix
+X = [ones(m, 1) X];
+
 % ====================== YOUR CODE HERE ======================
 % Instructions: Compute the cost of a particular choice of theta.
 %               You should set J to the cost.
